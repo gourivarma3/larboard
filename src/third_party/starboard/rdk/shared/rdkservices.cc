@@ -314,17 +314,6 @@ public:
       display_settings_.is_high_contrast_text_enabled =
         settings.TextDisplay.IsHighContrastTextEnabled.Value();
     }
-
-    if (!notify_app)
-      return;
-
-    if (auto* app = Application::Get(); app != nullptr) {
-      if (was_cc_enabled != caption_settings_.is_enabled)
-        app->InjectAccessibilityCaptionSettingsChanged();
-
-      if (was_highcontrast_enabled != display_settings_.is_high_contrast_text_enabled)
-        app->InjectAccessibilitySettingsChanged();
-    }
   }
 
   bool GetSettings(std::string& out_json) {
@@ -380,10 +369,6 @@ public:
        notify_on_change &= (caption_settings_.is_enabled != enabled);
        caption_settings_.is_enabled = enabled;
     }
-    if (notify_on_change && Application::Get()) {
-      SB_LOG(INFO) << "Accessibility closed caption setting changed, enabled = " << enabled;
-      Application::Get()->InjectAccessibilityCaptionSettingsChanged();
-    }
   }
 
   void SetHighContrastEnabled(bool enabled, bool notify_on_change = true) {
@@ -392,10 +377,6 @@ public:
       notify_on_change &= (display_settings_.is_high_contrast_text_enabled != enabled);
       display_settings_.is_high_contrast_text_enabled = enabled;
     }
-    if (notify_on_change && Application::Get()) {
-      SB_LOG(INFO) << "Accessibility high contrast text setting changed, enabled = " << enabled;
-      Application::Get()->InjectAccessibilitySettingsChanged();
-    }
   }
 
   void SetVoiceGuidanceEnabled(bool enabled, bool notify_on_change = true) {
@@ -403,10 +384,6 @@ public:
       std::lock_guard lock(mutex_);
       notify_on_change &= (is_voice_guidance_enabled_ != enabled);
       is_voice_guidance_enabled_ = enabled;
-    }
-    if (notify_on_change && Application::Get()) {
-      SB_LOG(INFO) << "Accessibility voice guidance setting changed, enabled = " << enabled;
-      Application::Get()->InjectAccessibilityTextToSpeechSettingsChanged();
     }
   }
 
