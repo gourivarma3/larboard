@@ -41,8 +41,8 @@ namespace {
 // on the Evergreen binary executed.
 // Returns false if it failed.
 bool GetEvergreenContentPathOverride(char* out_path, int path_size) {
-  const starboard::elf_loader::EvergreenConfig* evergreen_config =
-      starboard::elf_loader::EvergreenConfig::GetInstance();
+  const elf_loader::EvergreenConfig* evergreen_config =
+      elf_loader::EvergreenConfig::GetInstance();
   if (!evergreen_config) {
     return true;
   }
@@ -102,7 +102,7 @@ namespace {
 // Gets the path to the cache directory, using the home directory.
 bool GetCacheDirectory(char* out_path, int path_size) {
   std::vector<char> home_path(kSbFileMaxPath + 1);
-  if (!starboard::shared::starboard::GetHomeDirectory(home_path.data(),
+  if (!starboard::GetHomeDirectory(home_path.data(),
                                                       kSbFileMaxPath)) {
     return false;
   }
@@ -131,7 +131,7 @@ bool GetStorageDirectory(char* out_path, int path_size) {
   }
 
   std::vector<char> home_path(kSbFileMaxPath + 1);
-  if (!starboard::shared::starboard::GetHomeDirectory(home_path.data(),
+  if (!starboard::GetHomeDirectory(home_path.data(),
                                                       kSbFileMaxPath)) {
     return false;
   }
@@ -206,7 +206,7 @@ bool GetFilesDirectory(char* out_path, int path_size) {
   }
 
   std::vector<char> home_path(kSbFileMaxPath + 1);
-  if (!starboard::shared::starboard::GetHomeDirectory(home_path.data(),
+  if (!starboard::GetHomeDirectory(home_path.data(),
                                                       kSbFileMaxPath)) {
     return false;
   }

@@ -87,7 +87,7 @@ int Player::MaxNumberOfSamplesPerWrite() {
 
 using third_party::starboard::rdk::shared::drm::CreateDecryptorElement;
 using third_party::starboard::rdk::shared::media::CodecToGstCaps;
-using ::starboard::shared::starboard::media::IsSDRVideo;
+using ::starboard::IsSDRVideo;
 
 // **************************** GST/GLIB Helpers **************************** //
 

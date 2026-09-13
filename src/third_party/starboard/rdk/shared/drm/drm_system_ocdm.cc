@@ -146,7 +146,7 @@ class Session {
     kUpdate,
   };
 
-  ::starboard::shared::starboard::ThreadChecker thread_checker_;
+  ::starboard::ThreadChecker thread_checker_;
   Operation operation_{Operation::kNone};
   int ticket_{0};
   DrmSystemOcdm* drm_system_;
