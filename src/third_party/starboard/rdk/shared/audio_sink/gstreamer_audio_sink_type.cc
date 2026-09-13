@@ -48,7 +48,6 @@
 #include <mutex>
 
 #include "starboard/configuration.h"
-#include "starboard/file.h"
 #include "starboard/media.h"
 #include "starboard/shared/starboard/media/media_util.h"
 #include "starboard/thread.h"
