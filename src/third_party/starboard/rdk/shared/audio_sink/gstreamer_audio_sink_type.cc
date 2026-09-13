@@ -47,10 +47,10 @@
 #include <thread>
 #include <mutex>
 
+#include "starboard/common/thread_platform.h"
 #include "starboard/configuration.h"
 #include "starboard/media.h"
 #include "starboard/shared/starboard/media/media_util.h"
-#include "starboard/thread.h"
 
 #include "third_party/starboard/rdk/shared/hang_detector.h"
 
@@ -275,9 +275,7 @@ GStreamerAudioSink::~GStreamerAudioSink() {
 // static
 void* GStreamerAudioSink::AudioThreadEntryPoint(void* context) {
   SB_DCHECK(context);
-#if SB_API_VERSION >= 16
-  SbThreadSetPriority(kSbThreadPriorityRealTime);
-#endif
+  ::starboard::SetCurrentThreadPriority(::starboard::ThreadPriority::kRealTime);
 
   GStreamerAudioSink* sink = reinterpret_cast<GStreamerAudioSink*>(context);
   GST_TRACE_OBJECT(sink->pipeline_, "TID: %d", gettid());

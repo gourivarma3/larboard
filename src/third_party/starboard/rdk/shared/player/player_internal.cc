@@ -49,7 +49,7 @@
 
 #include "starboard/common/once.h"
 #include "starboard/common/media.h"
-#include "starboard/thread.h"
+#include "starboard/common/thread_platform.h"
 #include "starboard/common/time.h"
 #include "starboard/drm.h"
 #include "starboard/common/log.h"
@@ -2275,9 +2275,7 @@ gboolean PlayerImpl::HandleBusMessage(GstBus* bus, GstMessage* message) {
 
 // static
 void* PlayerImpl::ThreadEntryPoint(void* context) {
-#if SB_API_VERSION >= 16
-  SbThreadSetPriority(kSbThreadPriorityRealTime);
-#endif
+  ::starboard::SetCurrentThreadPriority(::starboard::ThreadPriority::kRealTime);
   SB_DCHECK(context);
   GST_TRACE("%d", gettid());
 
