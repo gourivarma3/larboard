@@ -165,7 +165,7 @@ GStreamerAudioSink::GStreamerAudioSink(
   GST_DEBUG_CATEGORY_INIT(cobalt_gst_audio_sink_debug, "gstaudsink", 0,
                           "Cobalt audio sink");
 
-  GST_TRACE("TID: %d", SbThreadGetId());
+  GST_TRACE("TID: %d", gettid());
 
   SB_DCHECK(audio_frame_storage_type == kSbMediaAudioFrameStorageTypeInterleaved)
       << "It seems SbAudioSinkIsAudioFrameStorageTypeSupported() was changed "
@@ -234,7 +234,7 @@ GStreamerAudioSink::GStreamerAudioSink(
 }
 
 GStreamerAudioSink::~GStreamerAudioSink() {
-  GST_TRACE_OBJECT(pipeline_, "TID: %d", SbThreadGetId());
+  GST_TRACE_OBJECT(pipeline_, "TID: %d", gettid());
 
   if (hang_monitor_source_id_ > -1) {
     GSource* src = g_main_context_find_source_by_id(main_loop_context_, hang_monitor_source_id_);
@@ -280,7 +280,7 @@ void* GStreamerAudioSink::AudioThreadEntryPoint(void* context) {
 #endif
 
   GStreamerAudioSink* sink = reinterpret_cast<GStreamerAudioSink*>(context);
-  GST_TRACE_OBJECT(sink->pipeline_, "TID: %d", SbThreadGetId());
+  GST_TRACE_OBJECT(sink->pipeline_, "TID: %d", gettid());
   g_main_context_push_thread_default(sink->main_loop_context_);
   sink->hang_monitor_.Reset();
   g_main_loop_run(sink->mainloop_);
@@ -296,7 +296,7 @@ gboolean GStreamerAudioSink::BusMessageCallback(GstBus* bus,
 
   GStreamerAudioSink* sink = static_cast<GStreamerAudioSink*>(user_data);
 
-  GST_TRACE_OBJECT(sink->pipeline_, "TID: %d", SbThreadGetId());
+  GST_TRACE_OBJECT(sink->pipeline_, "TID: %d", gettid());
 
   switch (GST_MESSAGE_TYPE(message)) {
     case GST_MESSAGE_EOS:
@@ -358,7 +358,7 @@ void GStreamerAudioSink::AppSrcNeedData(GstAppSrc* src,
 
   GStreamerAudioSink* sink = reinterpret_cast<GStreamerAudioSink*>(user_data);
 
-  GST_TRACE_OBJECT(sink->pipeline_, "TID: %d", SbThreadGetId());
+  GST_TRACE_OBJECT(sink->pipeline_, "TID: %d", gettid());
 
   sink->enough_data_ = false;
   int frames_in_buffer = 0;
@@ -464,7 +464,7 @@ void GStreamerAudioSink::AppSrcEnoughData(GstAppSrc* src, gpointer user_data) {
   GStreamerAudioSink* sink = static_cast<GStreamerAudioSink*>(user_data);
 
   sink->enough_data_ = true;
-  GST_TRACE_OBJECT(sink->pipeline_, "TID: %d", SbThreadGetId());
+  GST_TRACE_OBJECT(sink->pipeline_, "TID: %d", gettid());
 }
 
 // static
