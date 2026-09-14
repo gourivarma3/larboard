@@ -47,11 +47,10 @@
 #include <thread>
 #include <mutex>
 
+#include "starboard/common/thread_platform.h"
 #include "starboard/configuration.h"
-#include "starboard/file.h"
 #include "starboard/media.h"
 #include "starboard/shared/starboard/media/media_util.h"
-#include "starboard/thread.h"
 
 #include "third_party/starboard/rdk/shared/hang_detector.h"
 
@@ -67,7 +66,7 @@ GST_DEBUG_CATEGORY(cobalt_gst_audio_sink_debug);
 
 constexpr int kFramesPerRequest = 1024;
 
-using ::starboard::shared::starboard::media::GetBytesPerSample;
+using ::starboard::GetBytesPerSample;
 
 class GStreamerAudioSink : public SbAudioSinkPrivate {
  public:
@@ -166,7 +165,7 @@ GStreamerAudioSink::GStreamerAudioSink(
   GST_DEBUG_CATEGORY_INIT(cobalt_gst_audio_sink_debug, "gstaudsink", 0,
                           "Cobalt audio sink");
 
-  GST_TRACE("TID: %d", SbThreadGetId());
+  GST_TRACE("TID: %d", gettid());
 
   SB_DCHECK(audio_frame_storage_type == kSbMediaAudioFrameStorageTypeInterleaved)
       << "It seems SbAudioSinkIsAudioFrameStorageTypeSupported() was changed "
@@ -235,7 +234,7 @@ GStreamerAudioSink::GStreamerAudioSink(
 }
 
 GStreamerAudioSink::~GStreamerAudioSink() {
-  GST_TRACE_OBJECT(pipeline_, "TID: %d", SbThreadGetId());
+  GST_TRACE_OBJECT(pipeline_, "TID: %d", gettid());
 
   if (hang_monitor_source_id_ > -1) {
     GSource* src = g_main_context_find_source_by_id(main_loop_context_, hang_monitor_source_id_);
@@ -276,12 +275,10 @@ GStreamerAudioSink::~GStreamerAudioSink() {
 // static
 void* GStreamerAudioSink::AudioThreadEntryPoint(void* context) {
   SB_DCHECK(context);
-#if SB_API_VERSION >= 16
-  SbThreadSetPriority(kSbThreadPriorityRealTime);
-#endif
+  ::starboard::SetCurrentThreadPriority(::starboard::ThreadPriority::kRealTime);
 
   GStreamerAudioSink* sink = reinterpret_cast<GStreamerAudioSink*>(context);
-  GST_TRACE_OBJECT(sink->pipeline_, "TID: %d", SbThreadGetId());
+  GST_TRACE_OBJECT(sink->pipeline_, "TID: %d", gettid());
   g_main_context_push_thread_default(sink->main_loop_context_);
   sink->hang_monitor_.Reset();
   g_main_loop_run(sink->mainloop_);
@@ -297,7 +294,7 @@ gboolean GStreamerAudioSink::BusMessageCallback(GstBus* bus,
 
   GStreamerAudioSink* sink = static_cast<GStreamerAudioSink*>(user_data);
 
-  GST_TRACE_OBJECT(sink->pipeline_, "TID: %d", SbThreadGetId());
+  GST_TRACE_OBJECT(sink->pipeline_, "TID: %d", gettid());
 
   switch (GST_MESSAGE_TYPE(message)) {
     case GST_MESSAGE_EOS:
@@ -359,7 +356,7 @@ void GStreamerAudioSink::AppSrcNeedData(GstAppSrc* src,
 
   GStreamerAudioSink* sink = reinterpret_cast<GStreamerAudioSink*>(user_data);
 
-  GST_TRACE_OBJECT(sink->pipeline_, "TID: %d", SbThreadGetId());
+  GST_TRACE_OBJECT(sink->pipeline_, "TID: %d", gettid());
 
   sink->enough_data_ = false;
   int frames_in_buffer = 0;
@@ -465,7 +462,7 @@ void GStreamerAudioSink::AppSrcEnoughData(GstAppSrc* src, gpointer user_data) {
   GStreamerAudioSink* sink = static_cast<GStreamerAudioSink*>(user_data);
 
   sink->enough_data_ = true;
-  GST_TRACE_OBJECT(sink->pipeline_, "TID: %d", SbThreadGetId());
+  GST_TRACE_OBJECT(sink->pipeline_, "TID: %d", gettid());
 }
 
 // static
@@ -513,18 +510,19 @@ SbAudioSink GStreamerAudioSinkType::Create(
 }  // namespace third_party
 
 using third_party::starboard::rdk::shared::audio_sink::GStreamerAudioSinkType;
+using ::starboard::SbAudioSinkImpl;
 
 // static
-void SbAudioSinkPrivate::PlatformInitialize() {
+void SbAudioSinkImpl::PlatformInitialize() {
   auto* sink_type = GStreamerAudioSinkType::CreateInstance();
-  SetPrimaryType(sink_type);
+  SbAudioSinkImpl::SetPrimaryType(sink_type);
   EnableFallbackToStub();
 }
 
 // static
-void SbAudioSinkPrivate::PlatformTearDown() {
-  auto* sink_type = GetPrimaryType();
-  SetPrimaryType(NULL);
+void SbAudioSinkImpl::PlatformTearDown() {
+  auto* sink_type = SbAudioSinkImpl::GetPrimaryType();
+  SbAudioSinkImpl::SetPrimaryType(NULL);
   GStreamerAudioSinkType::DestroyInstance(
       static_cast<GStreamerAudioSinkType*>(sink_type));
 }

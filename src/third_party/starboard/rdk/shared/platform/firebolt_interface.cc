@@ -31,7 +31,7 @@
 #include <cstring>
 
 using namespace std::chrono_literals;
-using starboard::shared::starboard::media::MimeSupportabilityCache;
+using ::starboard::MimeSupportabilityCache;
 
 namespace third_party {
 namespace starboard {
@@ -339,17 +339,8 @@ std::optional<bool> FireboltInterface::FireboltTextToSpeech::is_enabled() {
 }
 
 void FireboltInterface::FireboltTextToSpeech::set_is_enabled(bool enabled) {
-  bool should_notify_app = false;
-  {
-    std::unique_lock<std::mutex> lock { mutex_ };
-    if (!is_enabled_.has_value() || *is_enabled_ != enabled) {
-      is_enabled_ = enabled;
-      should_notify_app = true;
-    }
-  }
-  if (should_notify_app && Application::Get()) {
-    Application::Get()->InjectAccessibilityTextToSpeechSettingsChanged();
-  }
+  std::unique_lock<std::mutex> lock { mutex_ };
+  is_enabled_ = enabled;
 }
 
 void FireboltInterface::FireboltTextToSpeech::init() {
@@ -411,31 +402,13 @@ std::optional<bool> FireboltInterface::FireboltAccessibility::caption_settings(S
 }
 
 void FireboltInterface::FireboltAccessibility::set_high_contrast_ui(bool enabled) {
-  bool should_notify_app = false;
-  {
-    std::unique_lock<std::mutex> lock { mutex_ };
-    if (is_high_contrast_text_enabled_ != enabled) {
-      is_high_contrast_text_enabled_ = enabled;
-      should_notify_app = true;
-    }
-  }
-  if (should_notify_app && Application::Get()) {
-    Application::Get()->InjectAccessibilitySettingsChanged();
-  }
+  std::unique_lock<std::mutex> lock { mutex_ };
+  is_high_contrast_text_enabled_ = enabled;
 }
 
 void FireboltInterface::FireboltAccessibility::set_cc_enabled(bool enabled) {
-  bool should_notify_app = false;
-  {
-    std::unique_lock<std::mutex> lock { mutex_ };
-    if (is_cc_enabled_ != enabled) {
-      is_cc_enabled_ = enabled;
-      should_notify_app = true;
-    }
-  }
-  if (should_notify_app && Application::Get()) {
-    Application::Get()->InjectAccessibilityCaptionSettingsChanged();
-  }
+  std::unique_lock<std::mutex> lock { mutex_ };
+  is_cc_enabled_ = enabled;
 }
 
 void FireboltInterface::FireboltAccessibility::unsubscribe() {

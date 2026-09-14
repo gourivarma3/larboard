@@ -30,7 +30,7 @@
 #include <chrono>
 
 #include "starboard/common/once.h"
-#include "starboard/thread.h"
+#include "starboard/common/thread_platform.h"
 
 #include "third_party/starboard/rdk/shared/log_override.h"
 
@@ -102,9 +102,7 @@ seconds get_check_interval() {
 struct HangDetector
 {
   static void* ThreadEntryPoint(void* context) {
-#if SB_API_VERSION >= 16
-    SbThreadSetPriority(kSbThreadNoPriority);
-#endif
+    ::starboard::SetCurrentThreadPriority(::starboard::ThreadPriority::kNoPriority);
     SB_DCHECK(context);
     static_cast<HangDetector*>(context)->DoWork();
     return nullptr;
