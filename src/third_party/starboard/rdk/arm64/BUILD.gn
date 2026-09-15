@@ -38,8 +38,14 @@ static_library("starboard_platform") {
   ]
 
   sources = [
-    "atomic_public.h",
     "configuration_constants.cc",
-    "thread_types_public.h",
   ]
+}
+
+if (sb_is_modular) {
+  static_library("starboard_platform_with_main") {
+    check_includes = false
+    configs += [ "//starboard/build/config:starboard_implementation" ]
+    public_deps = [ ":starboard_platform" ]
+  }
 }
