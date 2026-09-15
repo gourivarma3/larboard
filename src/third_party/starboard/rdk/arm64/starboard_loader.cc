@@ -29,9 +29,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef THIRD_PARTY_STARBOARD_RDK_RPI_ATOMIC_PUBLIC_H_
-#define THIRD_PARTY_STARBOARD_RDK_RPI_ATOMIC_PUBLIC_H_
+#include "starboard/event.h"
 
-#include "third_party/starboard/rdk/shared/atomic_public.h"
-
-#endif  // THIRD_PARTY_STARBOARD_RDK_RPI_ATOMIC_PUBLIC_H_
+int main(int argc, char** argv) {
+  return SbRunStarboardMain(argc, argv, SbEventHandle);
+}
