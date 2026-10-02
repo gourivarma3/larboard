@@ -65,11 +65,13 @@ pkg_config("wpeframework") {
   ]
 }
 
-pkg_config("wpeframework_websocket") {
-  packages = [
-    "WPEFrameworkDefinitions",
-    "WPEFrameworkWebSocket",
-  ]
+if (rdk_enable_rdkservices_api) {
+  pkg_config("wpeframework_websocket") {
+    packages = [
+      "WPEFrameworkDefinitions",
+      "WPEFrameworkWebSocket",
+    ]
+  }
 }
 
 if (rdk_enable_wpecryptography) {
